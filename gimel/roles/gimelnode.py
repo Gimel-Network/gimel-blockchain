@@ -17,7 +17,7 @@ class GimelNode(Node):
         super().__init__(gimel_address, coordinator)
 
         self.register_method('transaction.new', self.transactions_new)
-        self.register_method('chain.get', self.chain_get)
+        self.register_method('blockchain.get', self.chain_get)
         self.register_method('node.register', self.node_register)
         self.register_method('node.resolve', self.node_resolve)
 
@@ -28,9 +28,9 @@ class GimelNode(Node):
     def transactions_new(self, sender, recipient, amount):
         return Success(result=f'{sender} -> {recipient}: {amount}')
 
-    # [chain.get] method
+    # [blockchain.get] method
     def chain_get(self):
-        return Success('chain')
+        return Success('blockchain')
 
     # [node.register] method
     def node_register(self, node_address):

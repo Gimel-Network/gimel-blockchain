@@ -1,6 +1,6 @@
 import click
 
-from gimel.gimelnode import GimelNode
+from gimel.roles.gimelnode import GimelNode
 from gimel.coordinator.server import coordinator_run
 
 
