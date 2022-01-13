@@ -1,6 +1,7 @@
 import click
 
 from gimel.gimelnode import GimelNode
+from gimel.coordinator.server import coordinator_run
 
 
 def gen_hash_from_words(words):
@@ -28,7 +29,13 @@ def run(rpc):
     node.run()
 
 
+@click.command(name='coordinator')
+def coordinator():
+    coordinator_run()
+
+
 cli.add_command(run)
+cli.add_command(coordinator)
 
 if __name__ == '__main__':
     cli()

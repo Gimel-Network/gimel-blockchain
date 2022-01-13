@@ -13,7 +13,7 @@ from sanic.response import json
 from jsonrpcserver import Success, Error, dispatch_to_serializable, method
 from jsonrpcserver.result import SuccessResult, ErrorResult
 from pathlib import Path
-from .storage import JsonFileStorage
+from gimel.coordinator.storage import JsonFileStorage
 
 # jsonrpcserver patch for linter
 Result = Either[ErrorResult, SuccessResult]
@@ -122,9 +122,6 @@ async def router(request: Request):
     return json(middle)
 
 
-def main():
+def coordinator_run():
     app.run('0.0.0.0', port=5000)
 
-
-if __name__ == "__main__":
-    main()
