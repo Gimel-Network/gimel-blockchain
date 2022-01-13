@@ -123,5 +123,5 @@ async def router(request: Request):
 
 
 def coordinator_run():
-    app.run('0.0.0.0', port=5000)
+    app.run('0.0.0.0', port=5000, debug=True)
 

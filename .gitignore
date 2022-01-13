@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 .idea/
+gimel/coordinator/_storage.txt
+_storage.txt

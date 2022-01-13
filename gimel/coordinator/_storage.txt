@@ -1,5 +1,0 @@
-{
-  "endpoints": [],
-  "tunnels": [],
-  "slaver2public": {}
-}
