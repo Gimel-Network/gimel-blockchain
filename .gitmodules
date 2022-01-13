@@ -1,0 +1,3 @@
+[submodule "shootback"]
+	path = shootback
+	url = git@github.com:Gimel-Network/shootback.git
