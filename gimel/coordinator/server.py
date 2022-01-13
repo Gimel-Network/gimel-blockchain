@@ -13,7 +13,7 @@ from sanic.response import json
 from jsonrpcserver import Success, Error, dispatch_to_serializable, method
 from jsonrpcserver.result import SuccessResult, ErrorResult
 from pathlib import Path
-from gimel.coordinator.storage import JsonFileStorage
+from .storage import JsonFileStorage
 
 # jsonrpcserver patch for linter
 Result = Either[ErrorResult, SuccessResult]
