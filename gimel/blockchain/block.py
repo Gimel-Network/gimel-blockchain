@@ -24,6 +24,9 @@ class Block(Serializable):
         self.merkle_root = pymerkle.MerkleTree()
         self.transactions: List[Transaction] = list()
 
+        self.signer = None
+        self.signature = None
+
     @property
     def size(self) -> int:
         return len(self.transactions)
@@ -49,7 +52,11 @@ class Block(Serializable):
             raw['index'],
             raw['prev_block'],
             raw['version'],
-            raw['timestamp'])
+            raw['timestamp'],
+        )
+
+        block.signer = raw['signer']
+        block.signature = raw['signature']
 
         block.merkle_root = pymerkle.MerkleTree()
 

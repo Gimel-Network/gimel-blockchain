@@ -133,4 +133,4 @@ gimel/coordinator/_storage.txt
 _storage.txt
 /gimel/logs/
 /gimel/_storage.txt
-logs/
+/gimel/.ledger/

@@ -15,6 +15,9 @@ Flask = "^2.0.2"
 schedule = "^1.1.0"
 sanic = "^21.12.1"
 pymerkle = "^2.0.2"
+pytest = "^6.2.5"
+ecdsa = "^0.17.0"
+starkbank-ecdsa = "^2.0.3"
 
 [tool.poetry.dev-dependencies]
 

@@ -3,17 +3,18 @@ import os
 import pathlib
 import subprocess
 import sys
-from typing import List
+from typing import List, Dict
 
 import requests
 from jsonrpcclient import request as jrpc_request, parse, Ok
+import json as json_serializer
 
 
 class InvalidResponse:
     """raises if response is invalid"""
 
 
-def get_nodes_list(coordinator: str) -> List[str]:
+def get_nodes_list(coordinator: str) -> Dict[str, str]:
     """Get nodes list in gimel network from coordinator"""
 
     body = jrpc_request("endpoints.get")
@@ -21,8 +22,7 @@ def get_nodes_list(coordinator: str) -> List[str]:
 
     if response:
         parsed = parse(response.json())
-        nodes = parsed.result.split('\n')
-        nodes = [node for node in nodes if node]
+        nodes = json_serializer.loads(parsed.result)
         return nodes
 
     raise InvalidResponse
@@ -33,7 +33,8 @@ def add_self_to_nodes_list(host, port, gimel_addr, coordinator: str) -> bool:
 
     params = {
         'host': host,
-        'port': port
+        'port': port,
+        'address': gimel_addr
     }
 
     body = jrpc_request('endpoints.add',

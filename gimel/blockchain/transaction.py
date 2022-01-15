@@ -1,15 +1,16 @@
 import hashlib
 import json
 
-from blockchain.misc.serializable import Serializable
+from misc.serializable import Serializable
 
 
 class Transaction(Serializable):
 
-    def __init__(self, sender: str, recipient: str, amount: float):
+    def __init__(self, sender: str, recipient: str, amount: float, signature: str):
         self.sender = sender
         self.recipient = recipient
         self.amount = amount
+        self.signature = signature
 
     def hash(self):
         transact_hash = hashlib.sha256()
@@ -26,12 +27,14 @@ class Transaction(Serializable):
     def _from_serializer(cls, raw):
         return cls(raw['sender'],
                    raw['recipient'],
-                   raw['amount'])
+                   raw['amount'],
+                   raw['signature'])
 
     def _to_serializer(self):
         data = {
             'sender': self.sender,
             'recipient': self.recipient,
-            'amount': self.amount
+            'amount': self.amount,
+            'signature': self.signature
         }
         return data

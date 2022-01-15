@@ -26,15 +26,29 @@ class Node:
         self.coordinator = coordinator
 
         # registered nodes list in network
-        self.nodes_list = get_nodes_list(self.coordinator)
+        self.nodes_list: dict = get_nodes_list(self.coordinator)
 
         self.slaver = None
         self.public = None
 
         self.app = Flask(__name__)
 
+    @property
+    def public_url(self):
+        host, port = self.public
+        # noinspection HttpUrlsUsage
+        return f'http://{host}:{port}'
+
+    @property
+    def slaver_url(self):
+        host, port = self.slaver
+        # noinspection HttpUrlsUsage
+        return f'http://{host}:{port}'
+
     # noinspection PyMethodMayBeStatic
     def register_method(self, name, f):
+        # _method register server JRPC methods
+        # in module-global variable
         _method(name=name)(f)
 
     # noinspection PyMethodMayBeStatic
@@ -43,10 +57,10 @@ class Node:
         Run Flask JRPC server application in separate thread.
         """
 
+        # setup flask with jsonrpcserver
         @self.app.route("/", methods=["POST"])
         def index():
             data = request.get_data()
-            log.debug(data)
             decoded = data.decode()
             return Response(dispatch(decoded),
                             content_type="application/json")
@@ -85,14 +99,25 @@ class Node:
     def run(self):
         """Run node"""
 
+        # get available port for running server
+        # we must have port number for running server
+        # and tunneling
         port = get_available_port()
 
+        # run Flask app in dedicated thread
         self._run_server_in_thread(port)
 
+        # get available tunneling addresses
         self.slaver, self.public = get_available_tunnel(self.coordinator)
+
+        log.info(f'My public url: {self.public_url}')
+
+        # let's go run tunneling process
         run_tunneling(port, *self.slaver)
 
+        # add myself to coordinator nodes list
         add_self_to_nodes_list(*self.public, self.gimel_address, self.coordinator)
 
+        # run client side in main thread
         self._run_client()
 

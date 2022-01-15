@@ -1,7 +1,12 @@
+import os
+
 import click
 
 from gimel.roles.gimelnode import GimelNode
 from gimel.coordinator.server import coordinator_run
+from gimel import __project_folder__
+
+DEFAULT_LEDGER_FOLDER = os.path.join(__project_folder__, '.ledger')
 
 
 def gen_hash_from_words(words):
@@ -22,10 +27,12 @@ def cli():
 
 
 @click.command(name='run')
-@click.option('--rpc', required=True, help='RPC address')
-def run(rpc):
+@click.option('--rpc', required=True, help='RPC address.')
+@click.option('--ledger-dir', type=str,
+              default=DEFAULT_LEDGER_FOLDER, help='Ledger directory.')
+def run(rpc, ledger_dir):
     uuid = gen_hash_from_words(['test', 'gimel', 'net'])
-    node = GimelNode(uuid, rpc)
+    node = GimelNode(uuid, rpc, ledger_dir)
     node.run()
 
 
