@@ -1,47 +1,76 @@
-import json
 from typing import List
 
-from blockchain.block import Block
-from blockchain.misc.serializable import Serializable
-from blockchain.transaction import Transaction
+from gimel.blockchain.block import Block
+from misc.serializable import Serializable
+
+
+TX_COUNT_PER_BLOCK = 5
 
 
 class Ledger(Serializable):
 
     def __init__(self):
         self.blocks: List[Block] = list()
-        self.new_block(proof=1, previous_hash=1)
+        self.blocks.append(Block.genesis())
 
-    def new_block(self, proof, previous_hash=None):
-        block = Block(
-           len(self.blocks) + 1,
-           previous_hash or self.blocks[-1].hash()
-        )
+    def verify_chain(self, rhs_chain):
+        return all(self.verify_block(block) for block in rhs_chain)
 
-        self.blocks.append(block)
-        return block
+    def sync(self, rhs_chain):
+        if len(rhs_chain) <= len(self.blocks):
+            print(rhs_chain)
+            print(self.blocks)
+            print('Rhs chain is\'t longer')
+            return
 
-    def get_current_block(self) -> Block:
+        if self.verify_chain(rhs_chain):
+            self.blocks = rhs_chain
+            print('Chain is replaced')
+            return
+
+        print('Chain not replaced')
+
+    @property
+    def last_block(self):
         return self.blocks[-1]
 
-    def genesis(self):
-        return self.blocks[0]
+    @property
+    def last_hash(self):
+        return self.blocks[-1].hash
 
-    def new_transaction(self, sender, recipient, amount):
-        cur_block = self.get_current_block()
-        tx = Transaction(sender, recipient, amount)
-        cur_block.add_transaction(tx)
+    def get_balance(self, address):
+        pass
+
+    def is_validator(self, address):
+        pass
+
+    def is_chain_valid(self, chain):
+        pass
+
+    def verify_transaction(self, tx):
+        return True
+
+    def verify_block(self, block):
+        return True
+
+    def __len__(self):
+        return len(self.blocks)
+
+    def add_transaction(self, tx):
+        if self.verify_transaction(tx):
+            self.last_block.insert_tx(tx)
+
+    def to_serializer(self):
+        serialized_blocks = [
+            block.to_serializer() for block in self.blocks
+        ]
+        return serialized_blocks
 
     @classmethod
-    def _from_serializer(cls, raw):
-        # noinspection PyProtectedMember
-        blocks = [Block._from_serializer(rawb) for rawb in raw]
+    def from_serializer(cls, raw):
+        recovered_blocks = [
+            Block.from_serializer(raw) for item in raw
+        ]
         ledger = cls()
-        ledger.blocks = blocks
+        ledger.blocks = recovered_blocks
         return ledger
-
-    def _to_serializer(self):
-        # noinspection PyProtectedMember
-        return [block._to_serializer() for block in self.blocks]
-
-

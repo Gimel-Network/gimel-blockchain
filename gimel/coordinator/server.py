@@ -14,13 +14,14 @@ from jsonrpcserver import Success, Error, dispatch_to_serializable, method
 from jsonrpcserver.result import SuccessResult, ErrorResult
 from pathlib import Path
 from gimel.coordinator.storage import JsonFileStorage
+import json as json_serializer
 
 # jsonrpcserver patch for linter
 Result = Either[ErrorResult, SuccessResult]
 
 app = Sanic("Gimelchain-testnet-coordinator")
 storage = JsonFileStorage()
-storage.set('endpoints', list())
+storage.set('endpoints', dict())
 storage.set('tunnels', list())
 storage.set('slaver2public', dict())
 
@@ -28,17 +29,14 @@ storage.set('slaver2public', dict())
 @method(name='endpoints.get')
 def endpoints_get() -> Result:
     value = storage.get('endpoints')
-    print(value)
-    return Success('\n'.join(value))
+    dumped = json_serializer.dumps(value)
+    return Success(dumped)
 
 
 @method(name='endpoints.add')
-def endpoints_add(host: str, port: int) -> Result:
+def endpoints_add(host: str, port: int, address: str) -> Result:
     endpoints = storage.get('endpoints')
-    endpoints.append(f'{host}:{port}')
-    endpoints = set(endpoints)
-    endpoints = list(endpoints)
-
+    endpoints[f'{host}:{port}'] = address
     storage.set('endpoints', endpoints)
     return Success()
 

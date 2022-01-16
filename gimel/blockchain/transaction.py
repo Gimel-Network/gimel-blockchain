@@ -1,37 +1,50 @@
 import hashlib
-import json
 
-from blockchain.misc.serializable import Serializable
+from misc.serializable import Serializable
 
 
 class Transaction(Serializable):
 
-    def __init__(self, sender: str, recipient: str, amount: float):
+    def __init__(
+        self,
+        sender,
+        recipient,
+        amount,
+        signer=None,
+        signature=None
+    ):
+
         self.sender = sender
         self.recipient = recipient
         self.amount = amount
 
+        self.signer = signer or ''
+        self.signature = signature or ''
+
+    @property
     def hash(self):
-        transact_hash = hashlib.sha256()
+        control_string = f'''
+{self.sender}{self.recipient}{self.amount}
+'''
+        encoded = control_string.encode()
+        return hashlib.sha256(encoded).hexdigest()
 
-        serialized = self._to_serializer()
-        js = json.dumps(serialized, sort_keys=True)
-
-        encoded = js.encode('utf-8')
-        transact_hash.update(encoded)
-
-        return transact_hash.hexdigest()
-
-    @classmethod
-    def _from_serializer(cls, raw):
-        return cls(raw['sender'],
-                   raw['recipient'],
-                   raw['amount'])
-
-    def _to_serializer(self):
+    def to_serializer(self):
         data = {
             'sender': self.sender,
             'recipient': self.recipient,
-            'amount': self.amount
+            'amount': self.amount,
+            'signer': self.signer,
+            'signature': self.signature
         }
         return data
+
+    @classmethod
+    def from_serializer(cls, raw):
+        return cls(
+            raw['sender'],
+            raw['recipient'],
+            raw['amount'],
+            signer=raw['signer'],
+            signature=raw['signature']
+        )

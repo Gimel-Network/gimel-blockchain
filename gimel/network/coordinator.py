@@ -21,9 +21,7 @@ def get_nodes_list(coordinator: str) -> List[str]:
 
     if response:
         parsed = parse(response.json())
-        nodes = parsed.result.split('\n')
-        nodes = [node for node in nodes if node]
-        return nodes
+        return parsed.result
 
     raise InvalidResponse
 
@@ -33,7 +31,8 @@ def add_self_to_nodes_list(host, port, gimel_addr, coordinator: str) -> bool:
 
     params = {
         'host': host,
-        'port': port
+        'port': port,
+        'address': gimel_addr
     }
 
     body = jrpc_request('endpoints.add',

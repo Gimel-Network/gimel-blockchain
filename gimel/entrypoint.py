@@ -1,6 +1,9 @@
 import click
 
-from gimel.roles.gimelnode import GimelNode
+from gimel.blockchain.ledger import Ledger
+from gimel.blockchain.wallet import Wallet
+from gimel.controller import Controller
+
 from gimel.coordinator.server import coordinator_run
 
 
@@ -24,9 +27,10 @@ def cli():
 @click.command(name='run')
 @click.option('--rpc', required=True, help='RPC address')
 def run(rpc):
-    uuid = gen_hash_from_words(['test', 'gimel', 'net'])
-    node = GimelNode(uuid, rpc)
-    node.run()
+    wallet = Wallet(['test', 'gimel', 'net'])
+    ledger = Ledger()
+    controller = Controller(ledger, wallet, rpc)
+    controller.run()
 
 
 @click.command(name='coordinator')
