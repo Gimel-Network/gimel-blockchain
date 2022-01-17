@@ -1,6 +1,8 @@
+from time import time
 from typing import List
 
 from gimel.blockchain.block import Block
+from gimel.blockchain.transaction import Transaction
 from misc.serializable import Serializable
 
 
@@ -12,6 +14,8 @@ class Ledger(Serializable):
     def __init__(self):
         self.blocks: List[Block] = list()
         self.blocks.append(Block.genesis())
+        self.last_block.insert_tx(
+            Transaction('', '0', 1_000_000_000.000, 'emission', 'emission'))
 
     def verify_chain(self, rhs_chain):
         return all(self.verify_block(block) for block in rhs_chain)
@@ -38,6 +42,11 @@ class Ledger(Serializable):
     def last_hash(self):
         return self.blocks[-1].hash
 
+    def get_transactions(self):
+        for block in self.blocks:
+            for tx in block.transactions:
+                yield tx
+
     def get_balance(self, address):
         pass
 
@@ -59,6 +68,22 @@ class Ledger(Serializable):
     def add_transaction(self, tx):
         if self.verify_transaction(tx):
             self.last_block.insert_tx(tx)
+
+    def add_block(self, block, needed_verify=True):
+        if self.verify_block(block):
+            self.blocks.append(block)
+
+    def get_balance(self, address):
+        balance = 0
+
+        for tx in self.get_transactions():
+            if tx.sender == address:
+                balance -= tx.amount
+
+            if tx.recipient == address:
+                balance += tx.amount
+
+        return balance
 
     def to_serializer(self):
         serialized_blocks = [

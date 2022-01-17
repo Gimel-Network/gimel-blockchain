@@ -29,14 +29,13 @@ storage.set('slaver2public', dict())
 @method(name='endpoints.get')
 def endpoints_get() -> Result:
     value = storage.get('endpoints')
-    dumped = json_serializer.dumps(value)
-    return Success(dumped)
+    return Success(value)
 
 
 @method(name='endpoints.add')
 def endpoints_add(host: str, port: int, address: str) -> Result:
     endpoints = storage.get('endpoints')
-    endpoints[f'{host}:{port}'] = address
+    endpoints[f'http://{host}:{port}'] = address
     storage.set('endpoints', endpoints)
     return Success()
 

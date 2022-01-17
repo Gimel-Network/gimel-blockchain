@@ -1,4 +1,6 @@
 from hashlib import sha256
+from time import time
+
 import pymerkle
 
 from gimel.blockchain.transaction import Transaction
@@ -30,11 +32,13 @@ class Block(Serializable):
 
     @property
     def merkle_root(self):
-        return self.merkle_tree.rootHash.decode()
+        if len(self.transactions):
+            return self.merkle_tree.rootHash.decode()
+        return None
 
     @classmethod
     def genesis(cls):
-        return cls('', '', 0.0, 'genesis')
+        return cls('0.1.0', 0, time(), '', 'genesis')
 
     def insert_tx(self, tx: Transaction):
         self.transactions.append(tx)

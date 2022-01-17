@@ -36,5 +36,7 @@ class Wallet:
         tx.signer = self.public_key
 
     def sign_block(self, block: Block):
-        raise NotImplementedError()
+        # noinspection PyProtectedMember
+        block.signature = Ecdsa.sign(block.dumps(json_serializer), self._private)._toString()
+        block.signer = self.public_key
 

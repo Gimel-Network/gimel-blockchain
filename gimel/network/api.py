@@ -1,3 +1,5 @@
+import json
+
 import requests
 from jsonrpcserver import Success
 from jsonrpcclient import request as jrpc_request, parse
@@ -10,7 +12,7 @@ from misc import logging
 log = logging.getLogger(__name__)
 
 
-# noinspection PyMethodMayBeStatic
+# noinspection PyMethodMayBeStatic,PyPep8Naming
 class API(Node):
 
     def __init__(self, controller):
@@ -18,32 +20,40 @@ class API(Node):
         super().__init__(controller.address,
                          controller.coordinator)
 
-        self.register_method('transaction.new', self.transactions_new)
-        self.register_method('blockchain.get', self.chain_get)
-        self.register_method('node.register', self.node_register)
-        self.register_method('node.resolve', self.node_resolve)
+        self.controller = controller
+        self.is_testnet = controller.is_testnet
+
+        self.register_method('BroadcastTransaction', self.BroadcastTransaction)
+        self.register_method('GetChain', self.GetChain)
+        self.register_method('GetBalance', self.GetBalance)
+
+        if self.is_testnet:
+            self.register_method('GetAirdrop', self.GetAirdrop)
 
         # self.register_periodic(self.ping_all, 3)
         self.register_periodic(self.update_nodes_list, 3)
 
-    # [transactions.new] method
-    def transactions_new(self, sender, recipient, amount):
-        return Success(result=f'{sender} -> {recipient}: {amount}')
+    def BroadcastTransaction(self, sender, recipient, amount, signer, signature):
+        self.controller.broadcast_transaction(sender, recipient,
+                                              amount, signer, signature)
 
-    # [blockchain.get] method
-    def chain_get(self):
-        return Success('blockchain')
+        return Success(result=f'Transaction was added: {sender} -> {recipient}: {amount}')
 
-    # [node.register] method
-    def node_register(self, node_address):
-        return Success(result=f'{node_address}')
+    def GetChain(self):
+        chain = self.controller.get_chain()
+        return Success(chain)
 
-    # [node.resolve] method
-    def node_resolve(self):
-        return Success(result='resolve')
+    def GetBalance(self, address):
+        balance = self.controller.get_balance(address)
+        return Success(balance)
+
+    def GetAirdrop(self, address):
+        self.controller.get_airdrop(address)
+        return Success()
 
     def update_nodes_list(self):
-        self.nodes_list = get_nodes_list(self.coordinator)
+        self.nodes = get_nodes_list(self.coordinator)
+        log.debug(json.dumps(self.nodes, indent=2))
 
     # def ping_all(self):
     #     public_url = f'{self.public[0]}:{self.public[1]}'

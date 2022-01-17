@@ -26,7 +26,7 @@ class Node:
         self.coordinator = coordinator
 
         # registered nodes list in network
-        self.nodes_list = get_nodes_list(self.coordinator)
+        self.nodes = get_nodes_list(self.coordinator)
 
         self.slaver = None
         self.public = None
@@ -90,6 +90,9 @@ class Node:
         self._run_server_in_thread(port)
 
         self.slaver, self.public = get_available_tunnel(self.coordinator)
+
+        ph, pp = self.public
+        log.debug(f'Public URL: http://{ph}:{pp}')
         run_tunneling(port, *self.slaver)
 
         add_self_to_nodes_list(*self.public, self.gimel_address, self.coordinator)
