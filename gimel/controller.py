@@ -1,4 +1,4 @@
-from datetime import time
+from time import time
 from typing import List
 
 from gimel.blockchain.block import Block
@@ -14,13 +14,18 @@ from jsonrpcclient import request as jrpc_request, parse, Ok
 
 class Controller:
 
-    def __init__(self, ledger: Ledger, wallet: Wallet, coordinator: str, is_testnet=True):
+    def __init__(self,
+                 ledger: Ledger,
+                 wallet: Wallet,
+                 coordinator: str,
+                 is_testnet=True):
+
         self.ledger = ledger
         self.wallet = wallet
         self.coordinator = coordinator
+        self.is_testnet = is_testnet
         self.api = API(self)
         self.transactions_pool: List[Transaction] = []
-        self.is_testnet = is_testnet
 
     @property
     def address(self):
@@ -55,7 +60,10 @@ class Controller:
 
         request = jrpc_request('BroadcastTransaction', params=body)
 
-        for node, address in self.nodes:
+        for node, address in self.nodes.items():
+            if address == self.address:
+                continue
+
             response = requests.post(node, json=request)
 
             if response:
@@ -77,6 +85,7 @@ class Controller:
         timestamp = time()
 
         block = Block(version, index, timestamp, prev_hash)
+        block.insert_tx(Transaction('0', address, 1, '0', ''))
 
         self.wallet.sign_block(block)
         self.ledger.add_block(block, needed_verify=False)
